@@ -23,71 +23,69 @@
 
     <script>
         const API_URL = 'https://masnadk.work.gd';
-        const sendButton = document.getElementById('send-button');
-        const userInput = document.getElementById('user-input');
-        const chatLog = document.getElementById('chat-log');
-        const urlParams = new URLSearchParams(window.location.search);
-        const token = urlParams.get('token');
-        let messageCount = 0;
 
-        sendButton.addEventListener('click', sendMessage);
-        userInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                sendMessage();
-            }
-        });
+        // Retrieve the JWT from localStorage
+        let token = localStorage.getItem('token');
 
-        async function sendMessage() {
-            const message = userInput.value.trim();
-            if (message === '') return;
+        if (!token) {
+              window.location.href = 'index.html';  // Redirect to login if no token
+           }
 
-            // Display user message
-            const userMessageDiv = document.createElement('div');
-            userMessageDiv.classList.add('user-message');
-            userMessageDiv.textContent = message;
-            chatLog.appendChild(userMessageDiv);
+        function fetchWithAuth(url, options = {}) {
+           options.headers = {
+               ...options.headers,
+               'Authorization': `Bearer ${token}`
+          };
+           return fetch(url, options);
+       }
 
-            // Clear input
-            userInput.value = '';
+       document.getElementById('send-button').addEventListener('click', sendMessage);
+       document.getElementById('user-input').addEventListener('keypress', function(e) {
+          if (e.key === 'Enter') {
+              sendMessage();
+          }
+      });
 
-            try {
-                const response = await fetch(`${API_URL}/get_answer`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({
-                        message: message
-                    })
-                });
+      function sendMessage() {
+          const message = document.getElementById('user-input').value.trim();
+          if (message === '') return;
 
-                if (response.ok) {
-                    const data = await response.json();
-                    const botMessageDiv = document.createElement('div');
-                    botMessageDiv.classList.add('bot-message');
-                    botMessageDiv.textContent = data.answer;
-                    chatLog.appendChild(botMessageDiv);
+          fetchWithAuth(`${API_URL}/get_answer`, {
+              method: 'POST',
+              headers: {
+                 'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ message: message })
+          })
+          .then(response => {
+              if (response.status === 403) {
+                  alert('You have reached the message limit for this session.');
+                  window.location.href = 'index.html';
+                  return;
+              }
+              return response.json();
+          })
+          .then(data => {
+              if (data) {
+                  const chatLog = document.getElementById('chat-log');
+                  const botMessageDiv = document.createElement('div');
+                  botMessageDiv.classList.add('bot-message');
+                  botMessageDiv.textContent = data.answer;
+                  chatLog.appendChild(botMessageDiv);
 
-                    // Scroll to bottom
-                    chatLog.scrollTop = chatLog.scrollHeight;
+                  // Scroll to the bottom of the chat log
+                  chatLog.scrollTop = chatLog.scrollHeight;
 
-                    messageCount++;
-                    if (messageCount >= 5) {
-                        sendButton.disabled = true;
-                        userInput.disabled = true;
-                        const limitMessage = document.createElement('div');
-                        limitMessage.classList.add('bot-message');
-                        limitMessage.textContent = 'You have reached the message limit for this session.';
-                        chatLog.appendChild(limitMessage);
-                    }
-                } else {
-                    console.error('Failed to send message');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-            }
-        }
+                  // Update token in localStorage
+                  token = data.new_token;
+                  localStorage.setItem('token', token);
+              }
+          })
+          .catch(error => {
+              console.error('Error:', error);
+              alert('An error occurred. Please try again.');
+          });
+      }
     </script>
 </body>
 <footer>
