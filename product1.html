@@ -3,51 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تاريخ المملكة - OTP مصادقة</title>
+    <title>التحقق من OTP</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
-        <h1>ادخل OTP (كلمة مرور لمرة واحدة)</h1>
+        <h1>تحقق من OTP</h1>
         <form id="otp-form">
-            <input type="text" id="otp-input" placeholder="ادخل OTP هنا" required>
-            <button type="submit">ارسل</button>
+            <label for="otp">رمز OTP:</label>
+            <input type="text" id="otp" placeholder="أدخل OTP" required>
+            <button type="submit">تحقق</button>
         </form>
-        <p id="error-message" style="color:red;"></p>
-        <a href="index.html" class="back-link">← العودة الى الصفحة الرئيسية</a>
     </div>
 
     <script>
         const API_URL = 'https://masnadk.work.gd';
-        const urlParams = new URLSearchParams(window.location.search);
-        const token = urlParams.get('token');
 
-        document.getElementById('otp-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const otp = document.getElementById('otp-input').value;
+        document.getElementById('otp-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const otp = document.getElementById('otp').value.trim();
 
-            try {
-                const response = await fetch(`${API_URL}/product1`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: `otp=${otp}`,
-                });
+            const formData = new FormData();
+            formData.append('otp', otp);
 
-                if (response.ok) {
-                    const data = await response.json();
-                    const newToken = data.token;
-                    window.location.href = `product1_chat.html?token=${newToken}`;
+            fetch(`${API_URL}/product1`, {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.access_token) {
+                    localStorage.setItem('token', data.access_token);
+                    window.location.href = 'product1_chat.html';  // Redirect to chat page
                 } else {
-                    const data = await response.json();
-                    document.getElementById('error-message').textContent = data.error || 'Invalid or used OTP.';
+                    alert('OTP غير صالح أو تم استخدامه.');
                 }
-            } catch (error) {
+            })
+            .catch(error => {
                 console.error('Error:', error);
-                document.getElementById('error-message').textContent = 'An error occurred. Please try again.';
-            }
+                alert('حدث خطأ. حاول مرة اخرى.');
+            });
         });
     </script>
 </body>
