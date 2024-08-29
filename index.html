@@ -1,15 +1,58 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sudoku Game</title>
+    <title>المساعد الذكي للطالب الجامعي</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <h1>Sudoku Game</h1>
-    <div id="sudoku-board"></div>
-    <button id="check-btn">Check Solution</button>
-    <script src="script.js"></script>
+    <div class="container">
+        <h1>مرحبا بك في المساعد الذكي للخدمات الطلابية</h1>
+        <div class="products">
+            <a href="javascript:void(0)" id="product1-link" class="product-card">
+                <h2>تاريخ المملكة</h2>
+                <p>ادخل للمساعد الخاص ب تاريخ المملكة</p>
+            </a>
+            <a href="product2.html" class="product-card">
+                <h2>Product 2</h2>
+                <p>Click to chat about Product 2</p>
+            </a>
+            <a href="product3.html" class="product-card">
+                <h2>Product 3</h2>
+                <p>Click to chat about Product 3</p>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('product1-link').addEventListener('click', async () => {
+            try {
+                const response = await fetch('https://masnadk.work.gd/gen_otp', {
+                    method: 'POST'
+                });
+                const data = await response.json();
+                if (response.ok) {
+                    const otp = data.otp;
+                    const token = data.token;
+                    // Redirect to product1.html and pass the token as a query parameter
+                    window.location.href = `product1.html?token=${token}`;
+                } else {
+                    console.error('Failed to generate OTP');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        });
+    </script>
 </body>
+<footer>
+    <div class="footer-content">
+        <ul class="social-links">
+            <li><a href="https://facebook.com">Facebook</a></li>
+            <li><a href="https://instagram.com">Instagram</a></li>
+        </ul>
+        <p>&copy; 2024 Made with 💓 by Seniors.</p>
+    </div>
+</footer>
 </html>
