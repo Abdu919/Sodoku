@@ -3,56 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>المساعد الذكي للطالب الجامعي</title>
+    <title>تسجيل الدخول</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <div class="container">
-        <h1>مرحبا بك في المساعد الذكي للخدمات الطلابية</h1>
-        <div class="products">
-            <a href="javascript:void(0)" id="product1-link" class="product-card">
-                <h2>تاريخ المملكة</h2>
-                <p>ادخل للمساعد الخاص ب تاريخ المملكة</p>
-            </a>
-            <a href="product2.html" class="product-card">
-                <h2>Product 2</h2>
-                <p>Click to chat about Product 2</p>
-            </a>
-            <a href="product3.html" class="product-card">
-                <h2>Product 3</h2>
-                <p>Click to chat about Product 3</p>
-            </a>
-        </div>
+        <h1>تسجيل الدخول</h1>
+        <form id="login-form">
+            <label for="phone-number">رقم الهاتف:</label>
+            <input type="text" id="phone-number" placeholder="أدخل رقم هاتفك" required>
+            <button type="submit">إرسال OTP</button>
+        </form>
     </div>
 
     <script>
-        document.getElementById('product1-link').addEventListener('click', async () => {
-            try {
-                const response = await fetch('https://masnadk.work.gd/gen_otp', {
-                    method: 'POST'
-                });
-                const data = await response.json();
-                if (response.ok) {
-                    const otp = data.otp;
-                    const token = data.token;
-                    // Redirect to product1.html and pass the token as a query parameter
-                    window.location.href = `product1.html?token=${token}`;
-                } else {
-                    console.error('Failed to generate OTP');
-                }
-            } catch (error) {
+        const API_URL = 'https://masnadk.work.gd';
+
+        document.getElementById('login-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            fetch(`${API_URL}/gen_otp`, {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                alert(`تم إرسال OTP: ${data.otp}`);  // In real implementation, OTP should be sent via WhatsApp or other means
+                window.location.href = 'product1.html';  // Redirect to OTP validation page
+            })
+            .catch(error => {
                 console.error('Error:', error);
-            }
+                alert('حدث خطأ. حاول مرة اخرى.');
+            });
         });
     </script>
 </body>
-<footer>
-    <div class="footer-content">
-        <ul class="social-links">
-            <li><a href="https://facebook.com">Facebook</a></li>
-            <li><a href="https://instagram.com">Instagram</a></li>
-        </ul>
-        <p>&copy; 2024 Made with 💓 by Seniors.</p>
-    </div>
-</footer>
 </html>
