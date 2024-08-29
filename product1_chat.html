@@ -11,11 +11,11 @@
         <h1>مساعد تاريخ المملكة</h1>
         <div class="chatbox">
             <div id="chat-log" class="chat-log">
-                <div class="bot-message">مرحبا! يمكنني الاجابة عن اسئلة مقرر تاريخ المملكة، أنسخ وألصق سؤالك في المحادثة</div>
+                <div class="bot-message">مرحبا! يمكنني الاجابة عن أسئلة مقرر تاريخ المملكة. انسخ وألصق سؤالك في المحادثة.</div>
             </div>
             <div class="chat-input">
-                <input type="text" id="user-input" placeholder="أكتب، أنسخ سؤالك هنا...">
-                <button id="send-button">Send</button>
+                <input type="text" id="user-input" placeholder="أكتب، انسخ سؤالك هنا...">
+                <button id="send-button">إرسال</button>
             </div>
         </div>
         <a href="index.html" class="back-link">← العودة الى الصفحة الرئيسية</a>
@@ -27,12 +27,10 @@
         // Retrieve the JWT from localStorage
         let token = localStorage.getItem('token');
 
-        // Redirect to the login page if no token is found
         if (!token) {
-            window.location.href = 'index.html';
+            window.location.href = 'index.html';  // Redirect to login if no token
         }
 
-        // Function to send fetch requests with Authorization header
         function fetchWithAuth(url, options = {}) {
             options.headers = {
                 ...options.headers,
@@ -41,7 +39,6 @@
             return fetch(url, options);
         }
 
-        // Send message when button is clicked or Enter key is pressed
         document.getElementById('send-button').addEventListener('click', sendMessage);
         document.getElementById('user-input').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
@@ -49,7 +46,6 @@
             }
         });
 
-        // Function to handle sending messages
         function sendMessage() {
             const message = document.getElementById('user-input').value.trim();
             if (message === '') return;
@@ -63,7 +59,7 @@
             })
             .then(response => {
                 if (response.status === 403) {
-                    alert('لقد وصلت إلى الحد الأقصى لعدد الرسائل لهذه الجلسة.');
+                    alert('لقد وصلت إلى الحد الأقصى من الرسائل لهذه الجلسة.');
                     window.location.href = 'index.html';
                     return;
                 }
@@ -87,7 +83,7 @@
             })
             .catch(error => {
                 console.error('Error:', error);
-                alert('حدث خطأ. يرجى المحاولة مرة أخرى.');
+                alert('حدث خطأ. حاول مرة اخرى.');
             });
         }
     </script>
