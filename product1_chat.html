@@ -27,65 +27,69 @@
         // Retrieve the JWT from localStorage
         let token = localStorage.getItem('token');
 
+        // Redirect to the login page if no token is found
         if (!token) {
-              window.location.href = 'index.html';  // Redirect to login if no token
-           }
+            window.location.href = 'index.html';
+        }
 
+        // Function to send fetch requests with Authorization header
         function fetchWithAuth(url, options = {}) {
-           options.headers = {
-               ...options.headers,
-               'Authorization': `Bearer ${token}`
-          };
-           return fetch(url, options);
-       }
+            options.headers = {
+                ...options.headers,
+                'Authorization': `Bearer ${token}`
+            };
+            return fetch(url, options);
+        }
 
-       document.getElementById('send-button').addEventListener('click', sendMessage);
-       document.getElementById('user-input').addEventListener('keypress', function(e) {
-          if (e.key === 'Enter') {
-              sendMessage();
-          }
-      });
+        // Send message when button is clicked or Enter key is pressed
+        document.getElementById('send-button').addEventListener('click', sendMessage);
+        document.getElementById('user-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
 
-      function sendMessage() {
-          const message = document.getElementById('user-input').value.trim();
-          if (message === '') return;
+        // Function to handle sending messages
+        function sendMessage() {
+            const message = document.getElementById('user-input').value.trim();
+            if (message === '') return;
 
-          fetchWithAuth(`${API_URL}/get_answer`, {
-              method: 'POST',
-              headers: {
-                 'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({ message: message })
-          })
-          .then(response => {
-              if (response.status === 403) {
-                  alert('You have reached the message limit for this session.');
-                  window.location.href = 'index.html';
-                  return;
-              }
-              return response.json();
-          })
-          .then(data => {
-              if (data) {
-                  const chatLog = document.getElementById('chat-log');
-                  const botMessageDiv = document.createElement('div');
-                  botMessageDiv.classList.add('bot-message');
-                  botMessageDiv.textContent = data.answer;
-                  chatLog.appendChild(botMessageDiv);
+            fetchWithAuth(`${API_URL}/get_answer`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ message: message })
+            })
+            .then(response => {
+                if (response.status === 403) {
+                    alert('لقد وصلت إلى الحد الأقصى لعدد الرسائل لهذه الجلسة.');
+                    window.location.href = 'index.html';
+                    return;
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data) {
+                    const chatLog = document.getElementById('chat-log');
+                    const botMessageDiv = document.createElement('div');
+                    botMessageDiv.classList.add('bot-message');
+                    botMessageDiv.textContent = data.answer;
+                    chatLog.appendChild(botMessageDiv);
 
-                  // Scroll to the bottom of the chat log
-                  chatLog.scrollTop = chatLog.scrollHeight;
+                    // Scroll to the bottom of the chat log
+                    chatLog.scrollTop = chatLog.scrollHeight;
 
-                  // Update token in localStorage
-                  token = data.new_token;
-                  localStorage.setItem('token', token);
-              }
-          })
-          .catch(error => {
-              console.error('Error:', error);
-              alert('An error occurred. Please try again.');
-          });
-      }
+                    // Update token in localStorage
+                    token = data.new_token;
+                    localStorage.setItem('token', token);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('حدث خطأ. يرجى المحاولة مرة أخرى.');
+            });
+        }
     </script>
 </body>
 <footer>
