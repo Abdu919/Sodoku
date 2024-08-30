@@ -63,24 +63,24 @@
         },
         body: JSON.stringify({ message: message }) // Ensure this is a JSON object
     });
-
+    const data = await response.json();
     if (response.status === 401) {
             console.error('Token expired or invalid');
             // Redirect to login or refresh token
         }
 
         
-    if (response) {
+    if (data) {
         // Check for errors in the response
-        if (response.answer) {
-            displayMessage('Bot: ' + response.answer);
+        if (data.answer) {
+            displayMessage('Bot: ' + data.answer);
         } else {
             displayMessage('Bot: Sorry, I could not process your request.');
         }
 
         // Update the token if a new one is received
-        if (response.new_token) {
-            localStorage.setItem('access_token', response.new_token);
+        if (data.new_token) {
+            localStorage.setItem('access_token', data.new_token);
         }
     }
 }
