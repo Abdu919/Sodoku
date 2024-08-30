@@ -51,19 +51,28 @@
     }
 
     async function getAnswer(message) {
-        const response = await fetchWithAuth(`${API_URL}/get_answer`, {
-            method: 'POST',
-            body: JSON.stringify({ message })
-        });
+    // Ensure the message is not empty
+    if (!message) return;
 
-        if (response) {
+    const response = await fetchWithAuth(`${API_URL}/get_answer`, {
+        method: 'POST',
+        body: JSON.stringify({ message }) // Ensure this is a JSON object
+    });
+
+    if (response) {
+        // Check for errors in the response
+        if (response.answer) {
             displayMessage('Bot: ' + response.answer);
-            // Update the token if a new one is received
-            if (response.new_token) {
-                localStorage.setItem('access_token', response.new_token);
-            }
+        } else {
+            displayMessage('Bot: Sorry, I could not process your request.');
+        }
+
+        // Update the token if a new one is received
+        if (response.new_token) {
+            localStorage.setItem('access_token', response.new_token);
         }
     }
+}
 
     function displayMessage(message) {
         const chat = document.getElementById('chat');
