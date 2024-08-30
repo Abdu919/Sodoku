@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        #chat {
+            border: 1px solid #ccc;
+            padding: 10px;
+            height: 400px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+        }
+        #input {
+            width: 100%;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Chat with the Bot</h1>
+<div id="chat"></div>
+<input type="text" id="input" placeholder="Type your message..." />
+
+<script>
+    const API_URL = 'http://localhost:8000'; // Update with your backend URL
+
+    async function fetchWithAuth(url, options = {}) {
+        const token = localStorage.getItem('access_token');
+        options.headers = {
+            ...options.headers,
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        };
+
+        const response = await fetch(url, options);
+
+        if (response.status === 401) {
+            console.error('Token expired or invalid');
+            // Redirect to login or refresh token
+        }
+
+        return response.json();
+    }
+
+    async function getAnswer(message) {
+        const response = await fetchWithAuth(`${API_URL}/get_answer`, {
+            method: 'POST',
+            body: JSON.stringify({ message })
+        });
+
+        if (response) {
+            displayMessage('Bot: ' + response.answer);
+            // Update the token if a new one is received
+            if (response.new_token) {
+                localStorage.setItem('access_token', response.new_token);
+            }
+        }
+    }
+
+    function displayMessage(message) {
+        const chat = document.getElementById('chat');
+        chat.innerHTML += `<div>${message}</div>`;
+        chat.scrollTop = chat.scrollHeight; // Scroll to the bottom
+    }
+
+    document.getElementById('input').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+            const input = e.target.value;
+            displayMessage('You: ' + input);
+            e.target.value = ''; // Clear the input field
+            getAnswer(input); // Send the message to the bot
+        }
+    });
+</script>
+
+</body>
+</html>
