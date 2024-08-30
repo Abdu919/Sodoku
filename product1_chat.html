@@ -54,11 +54,22 @@
     // Ensure the message is not empty
     if (!message) return;
 
-    const response = await fetchWithAuth(`${API_URL}/get_answer`, {
+    const token = localStorage.getItem('access_token');
+    const response = await fetch(`${API_URL}/get_answer`, {
         method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+        },
         body: JSON.stringify({ message: message }) // Ensure this is a JSON object
     });
 
+    if (response.status === 401) {
+            console.error('Token expired or invalid');
+            // Redirect to login or refresh token
+        }
+
+        
     if (response) {
         // Check for errors in the response
         if (response.answer) {
